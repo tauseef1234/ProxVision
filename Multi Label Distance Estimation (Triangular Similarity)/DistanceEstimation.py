@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+import winsound
 
 # Distance constants
 KNOWN_DISTANCE = 45  # INCHES
@@ -81,20 +82,20 @@ ref_person = cv.imread('ReferenceImages/image14.png')
 ref_mobile = cv.imread('ReferenceImages/image4.png')
 
 mobile_data = object_detector(ref_mobile)
-mobile_width_in_rf = mobile_data[1][1]
+# mobile_width_in_rf = mobile_data[1][1]
 
 person_data = object_detector(ref_person)
 person_width_in_rf = person_data[0][1]
 
-print(
-    f"Person width in pixels : {person_width_in_rf} mobile width in pixel: {mobile_width_in_rf}")
+# print(
+#     f"Person width in pixels : {person_width_in_rf} mobile width in pixel: {mobile_width_in_rf}")
 
 # finding focal length
 focal_person = focal_length_finder(
     KNOWN_DISTANCE, PERSON_WIDTH, person_width_in_rf)
 
-focal_mobile = focal_length_finder(
-    KNOWN_DISTANCE, MOBILE_WIDTH, mobile_width_in_rf)
+# focal_mobile = focal_length_finder(
+#     KNOWN_DISTANCE, MOBILE_WIDTH, mobile_width_in_rf)
 cap = cv.VideoCapture(0)
 while True:
     ret, frame = cap.read()
@@ -104,9 +105,13 @@ while True:
         if d[0] == 'person':
             distance = distance_finder(focal_person, PERSON_WIDTH, d[1])
             x, y = d[2]
+            if distance < 5:
+                winsound.Beep(440, 500)
         elif d[0] == 'cell phone':
             distance = distance_finder(focal_mobile, MOBILE_WIDTH, d[1])
             x, y = d[2]
+            if distance < 5:
+                winsound.Beep(440, 500)
         cv.rectangle(frame, (x, y-3), (x+150, y+23), BLACK, -1)
         cv.putText(frame, f'Dis: {round(distance,2)} ft',
                    (x+5, y+13), FONTS, 0.48, GREEN, 2)  # edit
